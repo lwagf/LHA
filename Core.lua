@@ -134,7 +134,12 @@ end
 
 LHA:RegisterEvent("ADDON_LOADED", function(_, name)
     if name ~= ADDON_NAME then return end
-    LHA_DB = CopyDefaults(LHA.defaults, LHA_DB or {})
+    if LHA_DB then
+        LHA:Migrate(LHA_DB)
+    else
+        LHA_DB = { version = LHA.DB_VERSION }
+    end
+    LHA_DB = CopyDefaults(LHA.defaults, LHA_DB)
     LHA.db = LHA_DB
     CallAll("OnInitialize")
 end)

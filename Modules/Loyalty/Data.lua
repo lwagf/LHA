@@ -6,16 +6,8 @@ LHA.Loyalty = Loyalty
 
 local listeners = {}
 
--- Brings profiles saved by older builds up to the current shape.
-local function Normalize(p)
-    p.battles = p.battles or 0
-    p.milestones.battles = p.milestones.battles or 0
-    p.kills, p.petKillingBlows, p.elites, p.milestones.kills = nil, nil, nil, nil
-end
-
 function Loyalty:OnInitialize()
     self.db = LHA.db.loyalty
-    for _, p in pairs(self.db.pets) do Normalize(p) end
 end
 LHA:RegisterModule("LoyaltyData", Loyalty)
 
