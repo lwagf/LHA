@@ -2,7 +2,7 @@
 -- optionally party/raid/guild chat).
 
 local _, LHA = ...
-local Loyalty = LHA.Loyalty
+local Journal = LHA.Journal
 local Milestones = {}
 LHA.Milestones = Milestones
 
@@ -34,7 +34,7 @@ local function NextHourThreshold(last)
 end
 
 local function SendPublic(text)
-    local db = LHA.db.loyalty
+    local db = LHA.db.journal
     if db.announceGroup then
         if IsInRaid() then
             SendChatMessage(text, "RAID")
@@ -50,8 +50,8 @@ end
 -- text: shown locally and stored as the memory, e.g. "1,000 battles together".
 -- publicText: first-person message for party/raid/guild chat.
 function Milestones:Announce(p, memoryType, text, publicText)
-    Loyalty:AddMemory(p, memoryType, text)
-    local db = LHA.db.loyalty
+    Journal:AddMemory(p, memoryType, text)
+    local db = LHA.db.journal
     local line = p.name .. " - " .. text .. "!"
     if db.milestoneChat then
         LHA:Print(GREEN .. p.name .. "|r - " .. text .. "!")

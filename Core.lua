@@ -20,7 +20,7 @@ LHA.defaults = {
         -- other addon's button starts, so start somewhere less crowded.
         minimapPos = 200,
     },
-    loyalty = {
+    journal = {
         milestoneChat = true,
         milestoneFlash = true,
         milestoneSound = true,
@@ -247,15 +247,15 @@ SlashCmdList.LHA = function(msg)
     elseif cmd == "pet" then
         LHA.PetCard:Toggle()
     elseif cmd == "retire" and rest ~= "" then
-        LHA.Loyalty:RetireByName(rest)
+        LHA.Journal:RetireByName(rest)
     elseif cmd == "minimap" then
         LHA.MinimapButton:Toggle()
     elseif cmd == "probe" and rest == "stable" then
-        LHA.LoyaltyTracker:ProbeStable()
+        LHA.JournalTracker:ProbeStable()
     elseif cmd == "probe" then
         LHA.TooClose:Probe()
         LHA.Growl:Probe()
-        LHA.LoyaltyTracker:Probe()
+        LHA.JournalTracker:Probe()
     else
         LHA:Print("/lha - settings | pet | retire <name> | minimap | unlock | lock | test | reset")
     end

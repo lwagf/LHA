@@ -8,29 +8,29 @@
 -- adopted onto its petNumber as soon as the stable data arrives.
 
 local _, LHA = ...
-local Loyalty = {}
-LHA.Loyalty = Loyalty
+local Journal = {}
+LHA.Journal = Journal
 
 local MAX_STABLE_SLOTS = 20
 
 local listeners = {}
 
-function Loyalty:OnInitialize()
-    self.db = LHA.db.loyalty
+function Journal:OnInitialize()
+    self.db = LHA.db.journal
 end
-LHA:RegisterModule("LoyaltyData", Loyalty)
+LHA:RegisterModule("JournalData", Journal)
 
 -- Listeners (the card) are told whenever any profile changes.
-function Loyalty:OnChanged(fn)
+function Journal:OnChanged(fn)
     table.insert(listeners, fn)
 end
 
-function Loyalty:NotifyChanged()
+function Journal:NotifyChanged()
     for _, fn in ipairs(listeners) do fn() end
 end
 
 -- Pet GUIDs look like Pet-0-server-instance-zone-npcID-spawnUID.
-function Loyalty.ParseNpcID(guid)
+function Journal.ParseNpcID(guid)
     if not guid then return nil end
     local unitType, _, _, _, _, npcID = strsplit("-", guid)
     if unitType ~= "Pet" and unitType ~= "Creature" then return nil end
@@ -38,11 +38,11 @@ function Loyalty.ParseNpcID(guid)
 end
 
 -- Fallback key, used only until stable data is available.
-function Loyalty.KeyFor(npcID, name, family)
+function Journal.KeyFor(npcID, name, family)
     return tostring(npcID or family or "?") .. ":" .. name
 end
 
-function Loyalty.KeyForPetNumber(petNumber)
+function Journal.KeyForPetNumber(petNumber)
     return "pet:" .. petNumber
 end
 
@@ -53,7 +53,7 @@ end
 -- Every pet the stable data knows about (active and stabled). Returns an
 -- empty list when the data isn't available or hasn't loaded yet; callers must
 -- treat that as "unknown", never as "no pets".
-function Loyalty:GetStablePets()
+function Journal:GetStablePets()
     local pets = {}
     if not (C_StableInfo and C_StableInfo.GetStablePetInfo) then return pets end
     local numActive = C_StableInfo.GetNumActivePets and C_StableInfo.GetNumActivePets() or 1
@@ -70,7 +70,7 @@ end
 -- Finds the stable entry for the pet that's out: the active slot with its
 -- name, or the only active slot (just after a rename the stable data can still
 -- hold the old name).
-function Loyalty:GetCurrentStableInfo(stablePets)
+function Journal:GetCurrentStableInfo(stablePets)
     local name = UnitName("pet")
     local active = {}
     for _, info in ipairs(stablePets or self:GetStablePets()) do
@@ -83,7 +83,7 @@ function Loyalty:GetCurrentStableInfo(stablePets)
 end
 
 -- Copies the stable data's view of a pet onto its profile.
-function Loyalty:ApplyStableInfo(p, info)
+function Journal:ApplyStableInfo(p, info)
     p.petNumber = info.petNumber
     p.displayID = info.displayID or p.displayID
     p.creatureID = info.creatureID or p.creatureID
@@ -96,7 +96,7 @@ end
 
 -- Returns the profile for a stable entry, moving a name-keyed profile (saved
 -- before stable data was used, or while it was loading) onto the petNumber key.
-function Loyalty:Adopt(info)
+function Journal:Adopt(info)
     local pets = self.db.pets
     local key = self.KeyForPetNumber(info.petNumber)
     if pets[key] then return pets[key], key end
@@ -115,7 +115,7 @@ end
 -- Brings profiles in line with the stable data. Stabled pets LHA hasn't seen
 -- yet get a "before LHA" profile. The active pet is left to the tracker, so a
 -- fresh tame still gets its "Met" record. Returns false if no data was available.
-function Loyalty:SyncStable()
+function Journal:SyncStable()
     local stablePets = self:GetStablePets()
     if #stablePets == 0 then return false end
     for _, info in ipairs(stablePets) do
@@ -136,7 +136,7 @@ end
 
 -- Key for the pet currently out, or nil if there is none (or its name
 -- hasn't loaded yet).
-function Loyalty:GetCurrentPetKey()
+function Journal:GetCurrentPetKey()
     if not UnitExists("pet") then return nil end
     local name = UnitName("pet")
     if not name or name == UNKNOWNOBJECT then return nil end
@@ -148,11 +148,11 @@ function Loyalty:GetCurrentPetKey()
     return self.KeyFor(self.ParseNpcID(UnitGUID("pet")), name, UnitCreatureFamily("pet"))
 end
 
-function Loyalty:GetProfile(key)
+function Journal:GetProfile(key)
     return key and self.db.pets[key]
 end
 
-function Loyalty:NewProfile(name)
+function Journal:NewProfile(name)
     return {
         name = name,
         retired = false,
@@ -166,7 +166,7 @@ function Loyalty:NewProfile(name)
 end
 
 -- Creates the profile for the pet currently out.
-function Loyalty:CreateProfile(key)
+function Journal:CreateProfile(key)
     local p = self:NewProfile(UnitName("pet"))
     self.db.pets[key] = p
     self:RefreshInfo(p)
@@ -175,7 +175,7 @@ end
 
 -- Updates the fields that can change while the pet is out. Live unit values
 -- win over stable data, which can lag behind (e.g. just after a rename).
-function Loyalty:RefreshInfo(p)
+function Journal:RefreshInfo(p)
     local info = self:GetCurrentStableInfo()
     if info then self:ApplyStableInfo(p, info) end
     p.name = UnitName("pet") or p.name
@@ -187,7 +187,7 @@ end
 -- Moves a name-keyed profile to a new key after the pet is renamed (only
 -- needed while stable data is unavailable; petNumber keys survive renames).
 -- Returns the key now in use.
-function Loyalty:Rename(oldKey, newKey, newName)
+function Journal:Rename(oldKey, newKey, newName)
     local pets = self.db.pets
     if pets[newKey] or not pets[oldKey] then return newKey end
     pets[newKey] = pets[oldKey]
@@ -197,7 +197,7 @@ function Loyalty:Rename(oldKey, newKey, newName)
     return newKey
 end
 
-function Loyalty:Retire(key)
+function Journal:Retire(key)
     local p = self:GetProfile(key)
     if not p then return end
     p.retired = true
@@ -206,7 +206,7 @@ function Loyalty:Retire(key)
 end
 
 -- /lha retire <name>: for pets abandoned while LHA wasn't watching.
-function Loyalty:RetireByName(name)
+function Journal:RetireByName(name)
     local matches = {}
     for key, p in pairs(self.db.pets) do
         if p.name and p.name:lower() == name:lower() and not p.retired then
@@ -223,7 +223,7 @@ function Loyalty:RetireByName(name)
     end
 end
 
-function Loyalty:AddMemory(p, memoryType, text)
+function Journal:AddMemory(p, memoryType, text)
     table.insert(p.memories, {
         type = memoryType,
         text = text,

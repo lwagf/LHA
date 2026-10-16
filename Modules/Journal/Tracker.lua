@@ -2,9 +2,9 @@
 -- currently out. (This client forbids the combat log, so nothing here uses it.)
 
 local _, LHA = ...
-local Loyalty = LHA.Loyalty
-local M = LHA:RegisterModule("LoyaltyTracker", {})
-LHA.LoyaltyTracker = M
+local Journal = LHA.Journal
+local M = LHA:RegisterModule("JournalTracker", {})
+LHA.JournalTracker = M
 
 local TAME_BEAST_ID = 1515
 local TAME_WINDOW = 10   -- seconds between the tame channel ending and the new pet appearing
@@ -21,7 +21,7 @@ local tame                        -- Tame Beast snapshot
 local lastEncounter               -- last ENCOUNTER_END payload, for /lha probe
 
 local function ActiveProfile()
-    return Loyalty:GetProfile(activeKey)
+    return Journal:GetProfile(activeKey)
 end
 M.ActiveProfile = ActiveProfile
 
@@ -70,14 +70,14 @@ function M:AssignMet(p)
 end
 
 function M:UpdatePet()
-    Loyalty:SyncStable()
+    Journal:SyncStable()
     petGUID = UnitExists("pet") and UnitGUID("pet") or nil
-    local key = Loyalty:GetCurrentPetKey()
+    local key = Journal:GetCurrentPetKey()
     if key == activeKey then
         local p = ActiveProfile()
         if p then
-            Loyalty:RefreshInfo(p)
-            Loyalty:NotifyChanged()
+            Journal:RefreshInfo(p)
+            Journal:NotifyChanged()
         end
         return
     end
@@ -88,26 +88,26 @@ function M:UpdatePet()
     activeKey = key
 
     if key then
-        local p = Loyalty:GetProfile(key)
+        local p = Journal:GetProfile(key)
         if not p then
-            p = Loyalty:CreateProfile(key)
+            p = Journal:CreateProfile(key)
             self:AssignMet(p)
         end
-        Loyalty:RefreshInfo(p)
-        Loyalty.db.current = key
+        Journal:RefreshInfo(p)
+        Journal.db.current = key
         outSince = GetTime()
         if UnitAffectingCombat("player") then combatSince = outSince end
     end
-    Loyalty:NotifyChanged()
+    Journal:NotifyChanged()
 end
 
 function M:OnPetNameUpdate()
-    local key = Loyalty:GetCurrentPetKey()
+    local key = Journal:GetCurrentPetKey()
     -- Same pet object with a new name means a rename; anything else is a pet change.
     if activeKey and key and key ~= activeKey and petGUID and UnitGUID("pet") == petGUID then
-        activeKey = Loyalty:Rename(activeKey, key, UnitName("pet"))
-        Loyalty.db.current = activeKey
-        Loyalty:NotifyChanged()
+        activeKey = Journal:Rename(activeKey, key, UnitName("pet"))
+        Journal.db.current = activeKey
+        Journal:NotifyChanged()
     else
         self:UpdatePet()
     end
@@ -124,7 +124,7 @@ function M:OnCombatStart()
     p.battles = p.battles + 1
     LHA.Milestones:CheckBattles(p)
     self:CheckTarget()
-    Loyalty:NotifyChanged()
+    Journal:NotifyChanged()
 end
 
 -- Remembers a notable target we're fighting, and records it if it has died.
@@ -154,7 +154,7 @@ function M:NotableKill(class, name)
         p.rares = p.rares + 1
     end
     LHA.Milestones:Notable(p, kind, name)
-    Loyalty:NotifyChanged()
+    Journal:NotifyChanged()
 end
 
 function M:OnEncounterEnd(encounterID, encounterName, difficultyID, groupSize, success)
@@ -163,13 +163,13 @@ function M:OnEncounterEnd(encounterID, encounterName, difficultyID, groupSize, s
     if not p or success ~= 1 then return end
     p.bosses = p.bosses + 1
     LHA.Milestones:Notable(p, "boss", encounterName)
-    Loyalty:NotifyChanged()
+    Journal:NotifyChanged()
 end
 
 function M:OnTick()
     if activeKey then
         self:FlushTime()
-        Loyalty:NotifyChanged()
+        Journal:NotifyChanged()
     end
 end
 
@@ -238,7 +238,7 @@ function M:OnInitialize()
 
     if PetAbandon then
         hooksecurefunc("PetAbandon", function()
-            if activeKey then Loyalty:Retire(activeKey) end
+            if activeKey then Journal:Retire(activeKey) end
         end)
     end
 end
@@ -279,7 +279,7 @@ end
 function M:Probe()
     local guid = UnitExists("pet") and UnitGUID("pet")
     LHA:Print(format("probe: petGUID=%s npcID=%s family=%s loyalty=%s key=%s",
-        tostring(guid), tostring(Loyalty.ParseNpcID(guid)), tostring(UnitCreatureFamily("pet")),
+        tostring(guid), tostring(Journal.ParseNpcID(guid)), tostring(UnitCreatureFamily("pet")),
         tostring(GetPetLoyalty and GetPetLoyalty()), tostring(activeKey)))
     LHA:Print(format("probe: tame=%s lv%s stopped=%s encounter=%s success=%s",
         tostring(tame and tame.name), tostring(tame and tame.level),

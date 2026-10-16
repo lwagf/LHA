@@ -4,6 +4,26 @@ Hunter quality-of-life features for **WoW Forever** (Interface `16001`).
 
 ## Modules
 
+### Pet journal
+
+A record of your history with each pet. Open it with `/lha pet` or by left-clicking the minimap button.
+
+**The pet journal** shows:
+- the pet's model, name, family, level and loyalty (e.g. *Best Friend*)
+- **Met at**: the level and place you tamed it, plus the original beast's name. Pets you had before installing LHA say *"Together since before LHA"*.
+- **Time together** (and time in combat), **battles together**, and **bosses**, **rares** and **world bosses** defeated together
+- **Memories**: a dated log of moments like first boss kills, rares and milestones
+- every pet you own, including stabled pets that haven't been summoned yet. Abandoned pets are kept and shown as *retired*.
+
+**Milestones** are celebrated with a chat message, a center-screen flash and a sound:
+- 100 / 500 / 1,000 / 2,500 / 5,000 battles, then every 5,000
+- 10 / 25 / 50 / 100 / 250 / 500 hours together
+- the first kill of each boss, rare and world boss together
+- taming a new pet
+
+You can also announce milestones to **party/raid** and/or **guild** chat, e.g.
+*"[LHA] Ryn and I defeated Taragaman the Hungerer together for the first time!"* Both are off by default.
+
 ### Too-close alert
 
 A red **!!** appears above your character when your target is too close to shoot, either in melee range or in the deadzone just outside it. This covers the whole gap where Auto Shot won't fire.
@@ -20,32 +40,12 @@ A **"Growl is ON"** banner shows while you're in a dungeon or raid and your pet 
 - A warning sound plays when it appears.
 - It's display-only. You turn Growl off yourself.
 
-### Pet loyalty
-
-A record of your history with each pet. Open it with `/lha pet` or by left-clicking the minimap button.
-
-**The pet card** shows:
-- the pet's model, name, family, level and loyalty (e.g. *Best Friend*)
-- **Met at**: the level and place you tamed it, plus the original beast's name. Pets you had before installing LHA say *"Together since before LHA"*.
-- **Time together** (and time in combat), **battles together**, and **bosses**, **rares** and **world bosses** defeated together
-- **Memories**: a dated log of moments like first boss kills, rares and milestones
-- every pet you own, including stabled pets that haven't been summoned yet. Abandoned pets are kept and shown as *retired*.
-
-**Milestones** are celebrated with a chat message, a center-screen flash and a sound:
-- 100 / 500 / 1,000 / 2,500 / 5,000 battles, then every 5,000
-- 10 / 25 / 50 / 100 / 250 / 500 hours together
-- the first kill of each boss, rare and world boss together
-- taming a new pet
-
-You can also announce milestones to **party/raid** and/or **guild** chat, e.g.
-*"[LHA] Ryn and I defeated Taragaman the Hungerer together for the first time!"* Both are off by default.
-
 ## Commands
 
 | Command | Action |
 |---|---|
 | `/lha` | Open settings |
-| `/lha pet` | Open/close the pet card |
+| `/lha pet` | Open/close the pet journal |
 | `/lha retire <name>` | Mark a pet as retired (for pets abandoned while LHA wasn't running) |
 | `/lha minimap` | Show/hide the minimap button |
 | `/lha unlock` / `/lha lock` | Unlock frames to drag them / lock them again |

@@ -1,7 +1,7 @@
 -- The pet profile card: summary, stats, memories and a list of every pet.
 
 local _, LHA = ...
-local Loyalty = LHA.Loyalty
+local Journal = LHA.Journal
 local Card = {}
 LHA.PetCard = Card
 
@@ -66,13 +66,13 @@ Card.MetLine = MetLine
 
 -- Current pet first, then everyone else by most recently seen.
 local function SortedKeys()
-    local active = LHA.LoyaltyTracker:GetActiveKey()
+    local active = LHA.JournalTracker:GetActiveKey()
     local keys = {}
-    for key in pairs(Loyalty.db.pets) do table.insert(keys, key) end
+    for key in pairs(Journal.db.pets) do table.insert(keys, key) end
     table.sort(keys, function(a, b)
         if a == active then return true end
         if b == active then return false end
-        return (Loyalty.db.pets[a].lastSeen or 0) > (Loyalty.db.pets[b].lastSeen or 0)
+        return (Journal.db.pets[a].lastSeen or 0) > (Journal.db.pets[b].lastSeen or 0)
     end)
     return keys
 end
@@ -103,7 +103,7 @@ local function Build()
 
     local title = frame.TitleText or Text(frame, "GameFontNormal")
     if not frame.TitleText then title:SetPoint("TOP", 0, -6) end
-    title:SetText("Pet Loyalty")
+    title:SetText("Pet Journal")
 
     local left = 14
     local rightEdge = WIDTH - LIST_WIDTH - 20
@@ -190,10 +190,10 @@ end
 
 function Card:Refresh()
     if not frame or not frame:IsShown() then return end
-    local pets = Loyalty.db.pets
+    local pets = Journal.db.pets
     local keys = SortedKeys()
     if not pets[selectedKey or ""] then selectedKey = keys[1] end
-    local active = LHA.LoyaltyTracker:GetActiveKey()
+    local active = LHA.JournalTracker:GetActiveKey()
 
     -- List
     for i, key in ipairs(keys) do
@@ -246,7 +246,7 @@ end
 
 function Card:Show(key)
     if not frame then Build() end
-    selectedKey = key or LHA.LoyaltyTracker:GetActiveKey() or Loyalty.db.current or selectedKey
+    selectedKey = key or LHA.JournalTracker:GetActiveKey() or Journal.db.current or selectedKey
     -- Always reload the model on open: the live pet may have been despawned
     -- and resummoned (or died and revived) while the card was closed.
     frame.modelKey = nil
@@ -262,7 +262,7 @@ function Card:Toggle()
     end
 end
 
-Loyalty:OnChanged(function() Card:Refresh() end)
+Journal:OnChanged(function() Card:Refresh() end)
 
 LHA:RegisterEvent("UNIT_MODEL_CHANGED", function(_, unit)
     if unit == "pet" and frame and frame:IsShown() then

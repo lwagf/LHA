@@ -22,6 +22,15 @@ LHA.migrations = {
             p.kills, p.petKillingBlows, p.elites, p.milestones.kills = nil, nil, nil, nil
         end
     end,
+
+    -- 2: the "loyalty" feature was renamed "Pet Journal" (to avoid confusion
+    -- with the game's own pet loyalty), including its saved-data key.
+    function(db)
+        if db.loyalty and not db.journal then
+            db.journal = db.loyalty
+        end
+        db.loyalty = nil
+    end,
 }
 
 LHA.DB_VERSION = #LHA.migrations

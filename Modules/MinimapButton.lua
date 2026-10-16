@@ -1,5 +1,5 @@
 -- Minimap button via LibDataBroker + LibDBIcon, so button-collector addons
--- can pick it up. Left-click: pet card. Right-click: settings.
+-- can pick it up. Left-click: pet journal. Right-click: settings.
 
 local _, LHA = ...
 local M = LHA:RegisterModule("MinimapButton", {})
@@ -12,11 +12,11 @@ local icon
 
 local function OnTooltipShow(tooltip)
     tooltip:AddLine("LHA - Logan's Hunter Addon")
-    local p = LHA.LoyaltyTracker.ActiveProfile()
+    local p = LHA.JournalTracker.ActiveProfile()
     if p then
         tooltip:AddLine(format("%s · %s battles together", p.name, LHA.Milestones.FormatNumber(p.battles)), 1, 1, 1)
     end
-    tooltip:AddLine("|cffffd100Left-click|r pet card", 0.8, 0.8, 0.8)
+    tooltip:AddLine("|cffffd100Left-click|r pet journal", 0.8, 0.8, 0.8)
     tooltip:AddLine("|cffffd100Right-click|r settings", 0.8, 0.8, 0.8)
 end
 
