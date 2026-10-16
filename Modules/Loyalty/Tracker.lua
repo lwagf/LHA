@@ -70,6 +70,7 @@ function M:AssignMet(p)
 end
 
 function M:UpdatePet()
+    Loyalty:SyncStable()
     petGUID = UnitExists("pet") and UnitGUID("pet") or nil
     local key = Loyalty:GetCurrentPetKey()
     if key == activeKey then
@@ -214,7 +215,15 @@ function M:OnInitialize()
     LHA:RegisterEvent("UNIT_PET", function(_, unit)
         if unit == "player" then M:UpdatePet() end
     end)
-    LHA:RegisterEvent("PLAYER_ENTERING_WORLD", function() M:UpdatePet() end)
+    LHA:RegisterEvent("PLAYER_ENTERING_WORLD", function()
+        M:UpdatePet()
+        -- Stable data can arrive from the server a little after login.
+        C_Timer.After(5, function() M:UpdatePet() end)
+        C_Timer.After(30, function() M:UpdatePet() end)
+    end)
+    -- Opening the stable master always has fresh stable data.
+    LHA:RegisterEvent("PET_STABLE_SHOW", function() M:UpdatePet() end)
+    LHA:RegisterEvent("PET_STABLE_UPDATE", function() M:UpdatePet() end)
     LHA:RegisterEvent("UNIT_NAME_UPDATE", function(_, unit)
         if unit == "pet" then M:OnPetNameUpdate() end
     end)
@@ -253,6 +262,34 @@ end
 function M:OnEnable()
     -- The pet is picked up on PLAYER_ENTERING_WORLD, once the zone is known.
     C_Timer.NewTicker(TICK, function() M:OnTick() end)
+end
+
+-- Diagnostics: what does this client's C_StableInfo offer? (/lha probe stable)
+local function Describe(v)
+    if type(v) ~= "table" then return tostring(v) end
+    local parts = {}
+    for k, val in pairs(v) do
+        if type(val) ~= "table" then table.insert(parts, tostring(k) .. "=" .. tostring(val)) end
+    end
+    table.sort(parts)
+    return "{" .. table.concat(parts, " ") .. "}"
+end
+
+function M:ProbeStable()
+    if not C_StableInfo then
+        LHA:Print("probe stable: no C_StableInfo")
+        return
+    end
+    local names = {}
+    for k in pairs(C_StableInfo) do table.insert(names, k) end
+    table.sort(names)
+    LHA:Print("probe stable: functions: " .. table.concat(names, ", "))
+    if C_StableInfo.GetStablePetInfo then
+        for slot = 0, 6 do
+            local ok, info = pcall(C_StableInfo.GetStablePetInfo, slot)
+            if ok and info then LHA:Print(format("probe stable: slot %d %s", slot, Describe(info))) end
+        end
+    end
 end
 
 function M:Probe()

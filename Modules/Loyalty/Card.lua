@@ -237,8 +237,8 @@ function Card:Refresh()
         frame.model:ClearModel()
         if selectedKey == active then
             frame.model:SetUnit("pet")
-        elseif p.npcID then
-            frame.model:SetCreature(p.npcID)
+        elseif p.displayID then
+            frame.model:SetDisplayInfo(p.displayID)
         end
         frame.model:SetFacing(MODEL_FACING)
     end

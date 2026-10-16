@@ -98,6 +98,11 @@ end)
 function LHA:RegisterEvent(event, fn)
     if not handlers[event] then
         handlers[event] = {}
+        if C_EventUtils and C_EventUtils.IsEventValid and not C_EventUtils.IsEventValid(event) then
+            LHA.failedEvents = LHA.failedEvents or {}
+            table.insert(LHA.failedEvents, event)
+            return
+        end
         eventFrame:RegisterEvent(event)
         -- Diagnostics: note events the client refused to register.
         if not eventFrame:IsEventRegistered(event) then
@@ -241,6 +246,8 @@ SlashCmdList.LHA = function(msg)
         LHA:Print("Frame positions reset.")
     elseif cmd == "pet" then
         LHA.PetCard:Toggle()
+    elseif cmd == "retire" and rest ~= "" then
+        LHA.Loyalty:RetireByName(rest)
     elseif cmd == "minimap" then
         LHA.MinimapButton:Toggle()
     elseif cmd == "met" then
@@ -250,11 +257,13 @@ SlashCmdList.LHA = function(msg)
         else
             LHA:Print("Usage: /lha met <level> <zone>, e.g. /lha met 14 The Barrens")
         end
+    elseif cmd == "probe" and rest == "stable" then
+        LHA.LoyaltyTracker:ProbeStable()
     elseif cmd == "probe" then
         LHA.TooClose:Probe()
         LHA.Growl:Probe()
         LHA.LoyaltyTracker:Probe()
     else
-        LHA:Print("/lha - settings | pet | met <level> <zone> | minimap | unlock | lock | test | reset | probe")
+        LHA:Print("/lha - settings | pet | met <level> <zone> | retire <name> | minimap | unlock | lock | test | reset | probe")
     end
 end
