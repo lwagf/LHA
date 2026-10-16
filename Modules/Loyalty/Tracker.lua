@@ -191,22 +191,6 @@ function M:OnTameStop()
     if tame then tame.stoppedAt = GetTime() end
 end
 
--- /lha met <level> <zone...>
-function M:SetMet(level, zone)
-    local p = ActiveProfile()
-    if not p then
-        LHA:Print("Summon the pet first.")
-        return
-    end
-    p.met = p.met or { date = time() }
-    p.met.kind = "tame"
-    p.met.level = level
-    p.met.zone = zone
-    p.met.subzone = nil
-    Loyalty:NotifyChanged()
-    LHA:Print(format("%s: met at Lv. %d in %s.", p.name, level, zone))
-end
-
 ----------------------------------------------------------------------
 -- Setup
 ----------------------------------------------------------------------

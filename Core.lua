@@ -250,13 +250,6 @@ SlashCmdList.LHA = function(msg)
         LHA.Loyalty:RetireByName(rest)
     elseif cmd == "minimap" then
         LHA.MinimapButton:Toggle()
-    elseif cmd == "met" then
-        local level, zone = rest:match("^(%d+)%s+(.+)$")
-        if level then
-            LHA.LoyaltyTracker:SetMet(tonumber(level), zone)
-        else
-            LHA:Print("Usage: /lha met <level> <zone>, e.g. /lha met 14 The Barrens")
-        end
     elseif cmd == "probe" and rest == "stable" then
         LHA.LoyaltyTracker:ProbeStable()
     elseif cmd == "probe" then
@@ -264,6 +257,6 @@ SlashCmdList.LHA = function(msg)
         LHA.Growl:Probe()
         LHA.LoyaltyTracker:Probe()
     else
-        LHA:Print("/lha - settings | pet | met <level> <zone> | retire <name> | minimap | unlock | lock | test | reset | probe")
+        LHA:Print("/lha - settings | pet | retire <name> | minimap | unlock | lock | test | reset")
     end
 end
