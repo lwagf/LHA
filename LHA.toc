@@ -1,0 +1,13 @@
+## Interface: 16001
+## Title: LHA
+## Notes: Logan's Hunter Addon - hunter quality-of-life features.
+## Author: Logan
+## Version: 0.1.0
+## IconTexture: Interface\Icons\Ability_Hunter_Pet_Spider
+## AddonCompartmentFunc: LHA_OnAddonCompartmentClick
+## SavedVariablesPerCharacter: LHA_DB
+
+Core.lua
+Modules\TooClose.lua
+Modules\Growl.lua
+Settings.lua
