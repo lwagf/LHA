@@ -2,10 +2,15 @@
 ## Title: LHA
 ## Notes: Logan's Hunter Addon - hunter quality-of-life features.
 ## Author: Logan
-## Version: 0.2.0
+## Version: 0.3.0
 ## IconTexture: Interface\Icons\Ability_Hunter_Pet_Spider
 ## AddonCompartmentFunc: LHA_OnAddonCompartmentClick
 ## SavedVariablesPerCharacter: LHA_DB
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
 
 Core.lua
 Modules\TooClose.lua
@@ -14,4 +19,5 @@ Modules\Loyalty\Data.lua
 Modules\Loyalty\Milestones.lua
 Modules\Loyalty\Tracker.lua
 Modules\Loyalty\Card.lua
+Modules\MinimapButton.lua
 Settings.lua

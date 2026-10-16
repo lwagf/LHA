@@ -26,12 +26,16 @@ end
 local function MetLine(p)
     local met = p.met
     if not met then return "" end
+    -- Pets LHA didn't see being tamed: we don't know where you met.
+    if met.kind ~= "tame" then
+        return format("Together since before LHA  %s· tracked since %s (Lv. %s)|r",
+            GREY, FormatDate(met.date), tostring(met.level or "?"))
+    end
     local where = met.zone or "?"
     if met.subzone and met.subzone ~= "" and met.subzone ~= met.zone then
         where = where .. " (" .. met.subzone .. ")"
     end
-    local prefix = met.kind == "tame" and "Met at" or "First seen at"
-    return format("%s Lv. %s in %s  %s· %s|r", prefix, tostring(met.level or "?"), where, GREY, FormatDate(met.date))
+    return format("Met at Lv. %s in %s  %s· %s|r", tostring(met.level or "?"), where, GREY, FormatDate(met.date))
 end
 
 local function StatsText(p)
@@ -50,11 +54,15 @@ local function MemoriesText(p)
     local lines = {}
     for i = #p.memories, 1, -1 do
         local m = p.memories[i]
-        local zone = (m.zone and m.zone ~= "") and (" " .. GREY .. "(" .. m.zone .. ")|r") or ""
+        local showZone = m.zone and m.zone ~= "" and not m.text:find(m.zone, 1, true)
+        local zone = showZone and (" " .. GREY .. "(" .. m.zone .. ")|r") or ""
         table.insert(lines, GREY .. date("%d %b %Y", m.date) .. "|r  " .. m.text .. zone)
     end
     return table.concat(lines, "\n")
 end
+
+Card.MemoriesText = MemoriesText -- exposed for tests
+Card.MetLine = MetLine
 
 -- Current pet first, then everyone else by most recently seen.
 local function SortedKeys()
@@ -239,6 +247,9 @@ end
 function Card:Show(key)
     if not frame then Build() end
     selectedKey = key or LHA.LoyaltyTracker:GetActiveKey() or Loyalty.db.current or selectedKey
+    -- Always reload the model on open: the live pet may have been despawned
+    -- and resummoned (or died and revived) while the card was closed.
+    frame.modelKey = nil
     frame:Show()
     self:Refresh()
 end
@@ -252,3 +263,10 @@ function Card:Toggle()
 end
 
 Loyalty:OnChanged(function() Card:Refresh() end)
+
+LHA:RegisterEvent("UNIT_MODEL_CHANGED", function(_, unit)
+    if unit == "pet" and frame and frame:IsShown() then
+        frame.modelKey = nil
+        Card:Refresh()
+    end
+end)

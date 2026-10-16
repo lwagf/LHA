@@ -14,6 +14,12 @@ LHA.defaults = {
         sound = true,
         pos = { "TOP", "TOP", 0, -150 },
     },
+    minimap = {
+        hide = false,
+        -- Degrees around the minimap. LibDBIcon's default (225) is where every
+        -- other addon's button starts, so start somewhere less crowded.
+        minimapPos = 200,
+    },
     loyalty = {
         milestoneChat = true,
         milestoneFlash = true,
@@ -230,6 +236,8 @@ SlashCmdList.LHA = function(msg)
         LHA:Print("Frame positions reset.")
     elseif cmd == "pet" then
         LHA.PetCard:Toggle()
+    elseif cmd == "minimap" then
+        LHA.MinimapButton:Toggle()
     elseif cmd == "met" then
         local level, zone = rest:match("^(%d+)%s+(.+)$")
         if level then
@@ -242,6 +250,6 @@ SlashCmdList.LHA = function(msg)
         LHA.Growl:Probe()
         LHA.LoyaltyTracker:Probe()
     else
-        LHA:Print("/lha - settings | pet | met <level> <zone> | unlock | lock | test | reset | probe")
+        LHA:Print("/lha - settings | pet | met <level> <zone> | minimap | unlock | lock | test | reset | probe")
     end
 end

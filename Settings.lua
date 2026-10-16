@@ -102,8 +102,12 @@ local function BuildPanel()
         function() return not db.locked end,
         function(v) LHA:SetLocked(not v) end)
 
+    local minimap = Checkbox(panel, "Show minimap button", unlocked,
+        function() return not db.minimap.hide end,
+        function(v) LHA.MinimapButton:SetShown(v) end)
+
     local test = Button(panel, "Test (10s)", 110, function() LHA:StartTest() end)
-    test:SetPoint("TOPLEFT", unlocked, "BOTTOMLEFT", 4, -10)
+    test:SetPoint("TOPLEFT", minimap, "BOTTOMLEFT", 4, -10)
     local reset = Button(panel, "Reset positions", 130, function() LHA:ResetPositions() end)
     reset:SetPoint("LEFT", test, "RIGHT", 8, 0)
 

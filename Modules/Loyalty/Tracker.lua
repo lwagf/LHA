@@ -251,8 +251,8 @@ function M:OnInitialize()
 end
 
 function M:OnEnable()
+    -- The pet is picked up on PLAYER_ENTERING_WORLD, once the zone is known.
     C_Timer.NewTicker(TICK, function() M:OnTick() end)
-    self:UpdatePet()
 end
 
 function M:Probe()
