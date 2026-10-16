@@ -83,6 +83,19 @@ local function BuildPanel()
     local grEnabled = Option(panel, "Warn when pet Growl autocast is on", h2, db.growl, "enabled", LHA.Growl)
     local grSound = Option(panel, "Play sound when the warning appears", grEnabled, db.growl, "sound", LHA.Growl)
 
+    -- Pet loyalty (second column)
+    local h4 = panel:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+    h4:SetPoint("TOPLEFT", h1, "TOPLEFT", 320, 0)
+    h4:SetText("Pet loyalty milestones")
+    local noModule = { OnSettingsChanged = function() end }
+    local lChat = Option(panel, "Chat message", h4, db.loyalty, "milestoneChat", noModule)
+    local lFlash = Option(panel, "Center-screen flash", lChat, db.loyalty, "milestoneFlash", noModule)
+    local lSound = Option(panel, "Sound", lFlash, db.loyalty, "milestoneSound", noModule)
+    local lGroup = Option(panel, "Announce to party/raid chat", lSound, db.loyalty, "announceGroup", noModule)
+    local lGuild = Option(panel, "Announce to guild chat", lGroup, db.loyalty, "announceGuild", noModule)
+    local openCard = Button(panel, "Open pet card", 130, function() LHA.PetCard:Show() end)
+    openCard:SetPoint("TOPLEFT", lGuild, "BOTTOMLEFT", 4, -10)
+
     -- Frames
     local h3 = Header(panel, "Frames", grSound, -16)
     local unlocked = Checkbox(panel, "Unlock frames (drag to move)", h3,
@@ -116,6 +129,11 @@ function LHA:OpenSettings()
     end
 end
 
-function LHA_OnAddonCompartmentClick()
-    LHA:OpenSettings()
+-- Left-click opens the pet card, any other button opens settings.
+function LHA_OnAddonCompartmentClick(_, button)
+    if button == "LeftButton" then
+        LHA.PetCard:Toggle()
+    else
+        LHA:OpenSettings()
+    end
 end

@@ -14,6 +14,14 @@ LHA.defaults = {
         sound = true,
         pos = { "TOP", "TOP", 0, -150 },
     },
+    loyalty = {
+        milestoneChat = true,
+        milestoneFlash = true,
+        milestoneSound = true,
+        announceGroup = false,
+        announceGuild = false,
+        pets = {},
+    },
 }
 
 -- Fill in any keys missing from saved data, leaving existing values alone.
@@ -85,6 +93,11 @@ function LHA:RegisterEvent(event, fn)
     if not handlers[event] then
         handlers[event] = {}
         eventFrame:RegisterEvent(event)
+        -- Diagnostics: note events the client refused to register.
+        if not eventFrame:IsEventRegistered(event) then
+            LHA.failedEvents = LHA.failedEvents or {}
+            table.insert(LHA.failedEvents, event)
+        end
     end
     table.insert(handlers[event], fn)
 end
@@ -120,7 +133,19 @@ LHA:RegisterEvent("ADDON_LOADED", function(_, name)
     CallAll("OnInitialize")
 end)
 
+-- Diagnostics: report which protected function was blocked.
+local function ReportBlocked(event, addon, func)
+    if addon == ADDON_NAME then
+        LHA:Print(format("%s: %s", event, tostring(func)))
+    end
+end
+LHA:RegisterEvent("ADDON_ACTION_BLOCKED", ReportBlocked)
+LHA:RegisterEvent("ADDON_ACTION_FORBIDDEN", ReportBlocked)
+
 LHA:RegisterEvent("PLAYER_LOGIN", function()
+    if LHA.failedEvents then
+        LHA:Print("Events refused by client: " .. table.concat(LHA.failedEvents, ", "))
+    end
     CallAll("OnEnable")
     local getMetadata = C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
     local version = getMetadata(ADDON_NAME, "Version") or "?"
@@ -187,7 +212,8 @@ end
 
 SLASH_LHA1 = "/lha"
 SlashCmdList.LHA = function(msg)
-    local cmd = strlower(strtrim(msg or ""))
+    local cmd, rest = strtrim(msg or ""):match("^(%S*)%s*(.-)$")
+    cmd = strlower(cmd)
     if cmd == "" then
         LHA:OpenSettings()
     elseif cmd == "unlock" then
@@ -202,10 +228,20 @@ SlashCmdList.LHA = function(msg)
     elseif cmd == "reset" then
         LHA:ResetPositions()
         LHA:Print("Frame positions reset.")
+    elseif cmd == "pet" then
+        LHA.PetCard:Toggle()
+    elseif cmd == "met" then
+        local level, zone = rest:match("^(%d+)%s+(.+)$")
+        if level then
+            LHA.LoyaltyTracker:SetMet(tonumber(level), zone)
+        else
+            LHA:Print("Usage: /lha met <level> <zone>, e.g. /lha met 14 The Barrens")
+        end
     elseif cmd == "probe" then
         LHA.TooClose:Probe()
         LHA.Growl:Probe()
+        LHA.LoyaltyTracker:Probe()
     else
-        LHA:Print("/lha - settings | unlock | lock | test | reset | probe")
+        LHA:Print("/lha - settings | pet | met <level> <zone> | unlock | lock | test | reset | probe")
     end
 end
