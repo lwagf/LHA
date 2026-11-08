@@ -131,14 +131,17 @@ end
 function M:CheckTarget()
     if not UnitExists("target") then return end
     local guid = UnitGUID("target")
+    local class = UnitClassification("target")
+    -- Secret values can't be compared or looked up, so this target can't be tracked.
+    if LHA.IsSecret(guid) or LHA.IsSecret(class) then return end
     if UnitIsDead("target") then
         if guid == engagedGUID then
             engagedGUID = nil
             if not UnitIsTapDenied("target") then
-                self:NotableKill(UnitClassification("target"), UnitName("target"))
+                self:NotableKill(class, UnitName("target"))
             end
         end
-    elseif UnitAffectingCombat("player") and NOTABLE_KIND[UnitClassification("target")]
+    elseif UnitAffectingCombat("player") and NOTABLE_KIND[class]
         and UnitCanAttack("player", "target") then
         engagedGUID = guid
     end

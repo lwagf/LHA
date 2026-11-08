@@ -57,6 +57,12 @@ function LHA:PlayAlert(soundKitID)
     PlaySound(soundKitID, "Master")
 end
 
+-- The client can return "secret" values from unit APIs. Addon code can't
+-- compare them, test them or use them as table keys without an error.
+function LHA.IsSecret(value)
+    return issecretvalue ~= nil and issecretvalue(value)
+end
+
 ----------------------------------------------------------------------
 -- Spell API helpers (prefer C_Spell, fall back to the older globals)
 ----------------------------------------------------------------------
@@ -261,6 +267,7 @@ SlashCmdList.LHA = function(msg)
     elseif cmd == "probe" then
         LHA.TooClose:Probe()
         LHA.Growl:Probe()
+        LHA.Ammo:Probe()
         LHA.JournalTracker:Probe()
     else
         LHA:Print("/lha - settings | pet | retire <name> | minimap | unlock | lock | test | reset")

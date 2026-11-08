@@ -93,6 +93,7 @@ local NOTABLE = {
 
 -- Announces the first kill of a given boss/rare/world boss for this pet.
 function Milestones:Notable(p, kind, name)
+    if LHA.IsSecret(name) then return end -- can't be saved or announced
     local key = kind .. ":" .. name
     if p.seenNotable[key] then return end
     p.seenNotable[key] = true
