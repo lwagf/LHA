@@ -40,6 +40,15 @@ A **"Growl is ON"** banner shows while you're in a dungeon or raid and your pet 
 - A warning sound plays when it appears.
 - It's display-only. You turn Growl off yourself.
 
+### Ammo counter
+
+A small icon and count of your equipped ammo, shown while you have a bow, gun or crossbow equipped.
+
+- The count turns **yellow** when low (200 or fewer by default, adjustable in settings).
+- When you run out, or have no ammo equipped, it shows a pulsing red **OUT**.
+- A sound plays when it becomes low or out (can be turned off).
+- It can be moved.
+
 ## Commands
 
 | Command | Action |

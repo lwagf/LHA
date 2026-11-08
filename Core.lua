@@ -14,6 +14,12 @@ LHA.defaults = {
         sound = true,
         pos = { "TOP", "TOP", 0, -150 },
     },
+    ammo = {
+        enabled = true,
+        sound = true,
+        lowThreshold = 200,
+        pos = { "CENTER", "CENTER", 0, -180 },
+    },
     minimap = {
         hide = false,
         -- Degrees around the minimap. LibDBIcon's default (225) is where every

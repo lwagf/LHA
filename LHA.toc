@@ -16,6 +16,7 @@ Core.lua
 Migrations.lua
 Modules\TooClose.lua
 Modules\Growl.lua
+Modules\Ammo.lua
 Modules\Journal\Data.lua
 Modules\Journal\Milestones.lua
 Modules\Journal\Tracker.lua

@@ -4,6 +4,7 @@ local _, LHA = ...
 local M = LHA:RegisterModule("Settings", {})
 
 local SCALE_MIN, SCALE_MAX, SCALE_STEP = 0.5, 3.0, 0.1
+local AMMO_MIN, AMMO_MAX, AMMO_STEP = 50, 1000, 50
 
 local panel, category
 
@@ -95,6 +96,28 @@ local function BuildPanel()
     local lGuild = Option(panel, "Announce to guild chat", lGroup, db.journal, "announceGuild", noModule)
     local openCard = Button(panel, "Open pet journal", 140, function() LHA.PetCard:Show() end)
     openCard:SetPoint("TOPLEFT", lGuild, "BOTTOMLEFT", 4, -10)
+
+    -- Ammo counter (second column)
+    local h5 = Header(panel, "Ammo counter", lGuild, -48)
+    local amEnabled = Option(panel, "Show ammo count", h5, db.ammo, "enabled", LHA.Ammo)
+    local amSound = Option(panel, "Play sound when low or out", amEnabled, db.ammo, "sound", LHA.Ammo)
+
+    local lowLabel = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    lowLabel:SetPoint("TOPLEFT", amSound, "BOTTOMLEFT", 4, -10)
+    local function UpdateLowLabel()
+        lowLabel:SetText(format("Low at: %d", db.ammo.lowThreshold))
+    end
+    local function ChangeLow(delta)
+        local n = db.ammo.lowThreshold + delta
+        db.ammo.lowThreshold = math.max(AMMO_MIN, math.min(AMMO_MAX, n))
+        UpdateLowLabel()
+        LHA.Ammo:OnSettingsChanged()
+    end
+    local lowMinus = Button(panel, "-", 26, function() ChangeLow(-AMMO_STEP) end)
+    lowMinus:SetPoint("LEFT", lowLabel, "RIGHT", 10, 0)
+    local lowPlus = Button(panel, "+", 26, function() ChangeLow(AMMO_STEP) end)
+    lowPlus:SetPoint("LEFT", lowMinus, "RIGHT", 4, 0)
+    panel:HookScript("OnShow", UpdateLowLabel)
 
     -- Frames
     local h3 = Header(panel, "Frames", grSound, -16)
