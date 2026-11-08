@@ -145,7 +145,19 @@ function Journal:GetCurrentPetKey()
         local _, key = self:Adopt(info)
         return key
     end
-    return self.KeyFor(self.ParseNpcID(UnitGUID("pet")), name, UnitCreatureFamily("pet"))
+    -- Stable data hasn't loaded yet. If exactly one existing pet has this name
+    -- and family, it's this one: use its profile rather than starting a
+    -- name-keyed placeholder that would be left behind as a duplicate.
+    local family = UnitCreatureFamily("pet")
+    local matchKey, matches = nil, 0
+    for key, p in pairs(self.db.pets) do
+        if p.petNumber and not p.retired and p.name == name
+            and (not p.family or not family or p.family == family) then
+            matchKey, matches = key, matches + 1
+        end
+    end
+    if matches == 1 then return matchKey end
+    return self.KeyFor(self.ParseNpcID(UnitGUID("pet")), name, family)
 end
 
 function Journal:GetProfile(key)

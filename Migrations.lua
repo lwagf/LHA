@@ -31,6 +31,39 @@ LHA.migrations = {
         end
         db.loyalty = nil
     end,
+
+    -- 3: logging in before stable data loaded could create a name-keyed
+    -- placeholder (e.g. "165189:Ryn") beside the pet's real profile, which then
+    -- showed as a duplicate. Fold each placeholder into its real profile.
+    function(db)
+        local journal = db.journal
+        local pets = journal and journal.pets
+        if not pets then return end
+        for key, p in pairs(pets) do
+            if not p.petNumber and not p.retired then
+                local realKey, matches = nil, 0
+                for k, q in pairs(pets) do
+                    if q.petNumber and not q.retired and q.name == p.name
+                        and (not q.family or not p.family or q.family == p.family) then
+                        realKey, matches = k, matches + 1
+                    end
+                end
+                if matches == 1 then
+                    local real = pets[realKey]
+                    for _, field in ipairs({ "timeOut", "timeCombat", "battles", "bosses", "rares", "worldBosses" }) do
+                        real[field] = (real[field] or 0) + (p[field] or 0)
+                    end
+                    real.seenNotable = real.seenNotable or {}
+                    for k in pairs(p.seenNotable or {}) do real.seenNotable[k] = true end
+                    real.memories = real.memories or {}
+                    for _, m in ipairs(p.memories or {}) do table.insert(real.memories, m) end
+                    table.sort(real.memories, function(a, b) return (a.date or 0) < (b.date or 0) end)
+                    pets[key] = nil
+                    if journal.current == key then journal.current = realKey end
+                end
+            end
+        end
+    end,
 }
 
 LHA.DB_VERSION = #LHA.migrations
