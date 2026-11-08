@@ -86,7 +86,7 @@ function Milestones:CheckTime(p)
 end
 
 local NOTABLE = {
-    boss = { text = "First boss: %s", public = "%s and I defeated %s together for the first time!" },
+    boss = { text = "Defeated %s", public = "%s and I defeated %s together for the first time!" },
     rare = { text = "Rare: %s", public = "%s and I took down the rare %s!" },
     worldboss = { text = "World boss: %s", public = "%s and I defeated the world boss %s!" },
 }

@@ -64,6 +64,21 @@ LHA.migrations = {
             end
         end
     end,
+
+    -- 4: boss memories read "First boss: X", which sounded like the pet's first
+    -- boss ever rather than its first kill of X. They now read "Defeated X".
+    function(db)
+        local pets = db.journal and db.journal.pets
+        if not pets then return end
+        for _, p in pairs(pets) do
+            for _, m in ipairs(p.memories or {}) do
+                if m.type == "boss" and type(m.text) == "string" then
+                    local name = m.text:match("^First boss: (.+)$")
+                    if name then m.text = "Defeated " .. name end
+                end
+            end
+        end
+    end,
 }
 
 LHA.DB_VERSION = #LHA.migrations
